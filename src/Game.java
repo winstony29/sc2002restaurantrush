@@ -103,7 +103,14 @@ public class Game {
 
     // Oldest READY_TO_PAY customer who became ready on an earlier turn, or null.
     private Customer nextCustomerToPay() {
-        throw new UnsupportedOperationException("TODO");
+        Customer next = null;
+        for (Customer c : customers) { // arrival order breaks ties
+            if (c.getStatus() == CustomerStatus.READY_TO_PAY && c.getReadyToPayTurn() < turn
+                    && (next == null || c.getReadyToPayTurn() < next.getReadyToPayTurn())) {
+                next = c;
+            }
+        }
+        return next;
     }
 
     // Step 5: unserved waiting/seated customers lose satisfaction; those at 0 abandon.
