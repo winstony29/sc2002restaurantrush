@@ -88,7 +88,10 @@ public class Game {
     }
 
     private void applyChefChoice(ChefChoice choice) {
-        throw new UnsupportedOperationException("TODO");
+        switch (choice.kind()) {
+            case COOK -> chef.cook(choice.table().getCustomer().getOrder());
+            case WAIT -> { }
+        }
     }
 
     // Step 4: served customers finish eating; Cashier.collect() charges at most one.
