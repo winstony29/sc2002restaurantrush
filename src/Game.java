@@ -158,7 +158,7 @@ public class Game {
     }
 
     public List<Customer> getCustomersToOrder() {
-        throw new UnsupportedOperationException("TODO");
+        return customers.stream().filter(c -> c.getStatus() == CustomerStatus.SEATED).toList();
     }
 
     public List<Order> getOrdersToServe() {
