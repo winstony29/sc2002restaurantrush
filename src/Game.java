@@ -105,7 +105,7 @@ public class Game {
     }
 
     public int getRevenueCents() {
-        throw new UnsupportedOperationException("TODO");
+        return revenueCents;
     }
 
     public int getTurn() {
