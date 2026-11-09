@@ -150,7 +150,7 @@ public class Game {
     }
 
     public int getUnhappyDepartures() {
-        throw new UnsupportedOperationException("TODO");
+        return (int) customers.stream().filter(c -> c.getStatus() == CustomerStatus.LEFT).count();
     }
 
     public List<Table> getFreeTables() {
