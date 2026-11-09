@@ -22,6 +22,10 @@ public class Game {
     private int revenueCents;
     private final List<Integer> paidSatisfactions = new ArrayList<>();
 
+    private static final int VICTORY_MIN_PAID = 4;
+    private static final int VICTORY_MIN_REVENUE_CENTS = 4500;
+    private static final int VICTORY_MIN_AVG_SATISFACTION = 60;
+
     // Base setting: 2 tables, Salad/Burger/Pasta menu, one Waiter, Chef and Cashier.
     public Game(RestaurantCLI cli) {
         this.cli = cli;
@@ -153,7 +157,9 @@ public class Game {
 
     // >= 4 paid AND revenue >= $45.00 AND average paid satisfaction >= 60.
     public boolean isVictory() {
-        throw new UnsupportedOperationException("TODO");
+        return getPaidCount() >= VICTORY_MIN_PAID
+                && revenueCents >= VICTORY_MIN_REVENUE_CENTS
+                && averageSatisfaction().orElse(0) >= VICTORY_MIN_AVG_SATISFACTION;
     }
 
     // Empty when no one has paid yet (displayed as N/A).
