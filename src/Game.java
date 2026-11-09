@@ -109,7 +109,7 @@ public class Game {
     }
 
     public int getTurn() {
-        throw new UnsupportedOperationException("TODO");
+        return turn;
     }
 
     public int getMaxTurns() {
