@@ -24,7 +24,17 @@ public class Game {
 
     // Base setting: 2 tables, Salad/Burger/Pasta menu, one Waiter, Chef and Cashier.
     public Game(RestaurantCLI cli) {
-        throw new UnsupportedOperationException("TODO");
+        this.cli = cli;
+        menu = new Menu(List.of(
+                new MenuItem("Salad", 900, 1),
+                new MenuItem("Burger", 1500, 1),
+                new MenuItem("Pasta", 1800, 2)));
+        tables.add(new Table(1));
+        tables.add(new Table(2));
+        waiter = new Waiter();
+        chef = new Chef();
+        cashier = new Cashier();
+        staff.addAll(List.of(waiter, chef, cashier));
     }
 
     // Loops runTurn() until isOver(), then shows the result.
