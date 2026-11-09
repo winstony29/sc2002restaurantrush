@@ -117,7 +117,7 @@ public class Game {
     }
 
     public List<Customer> getWaitingQueue() {
-        throw new UnsupportedOperationException("TODO");
+        return List.copyOf(waitingQueue);
     }
 
     public List<Table> getTables() {
