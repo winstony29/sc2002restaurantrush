@@ -48,7 +48,16 @@ public class Game {
 
     // One turn: reset staff, arrival, start screen, manager choices, eating/payment, waiting/abandonment.
     public void runTurn() {
-        throw new UnsupportedOperationException("TODO");
+        turn++;
+        for (Staff s : staff) {
+            s.resetTurn();
+        }
+        processArrival();
+        cli.displayTurnStart(this);
+        applyManagerChoices();
+        processEatingAndPayment();
+        processWaitingAndAbandonment();
+        cli.displayTurnEnd(this);
     }
 
     // Step 1: the scheduled customer joins the waiting queue.
