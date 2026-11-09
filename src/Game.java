@@ -129,7 +129,14 @@ public class Game {
 
     // Cancels the customer's unfinished order, frees their table, removes them from the queue.
     private void abandon(Customer c) {
-        throw new UnsupportedOperationException("TODO");
+        if (c.getOrder() != null) {
+            c.getOrder().cancel();
+        }
+        if (c.getTable() != null) {
+            c.getTable().clear();
+        }
+        waitingQueue.remove(c);
+        c.leave();
     }
 
     public boolean isOver() {
