@@ -65,7 +65,14 @@ public class Game {
 
     // The single error route: runs the move, and on IllegalMoveException shows why and asks again.
     private void retryUntilValid(Runnable move) {
-        throw new UnsupportedOperationException("TODO");
+        while (true) {
+            try {
+                move.run();
+                return;
+            } catch (IllegalMoveException e) {
+                cli.displayError(e.getMessage());
+            }
+        }
     }
 
     private void applyWaiterChoice(WaiterChoice choice) {
