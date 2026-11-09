@@ -162,7 +162,7 @@ public class Game {
     }
 
     public List<Order> getOrdersToServe() {
-        throw new UnsupportedOperationException("TODO");
+        return orders.stream().filter(o -> o.getStatus() == OrderStatus.READY).toList();
     }
 
     public List<Order> getOrdersToCook() {
