@@ -10,13 +10,15 @@ public class Order {
 
     private final MenuItem item;
     private final Customer customer;
-    private int unitsDone;
+    private int unitsDone = 0;
     private OrderStatus status;
 
     public Order(MenuItem item, Customer customer) {
+        if (item == null || customer == null) {
+            throw new IllegalArgumentException("An order needs an item and a customer");
+        }
         this.item = item;
         this.customer = customer;
-        this.unitsDone = 0;
         this.status = OrderStatus.TAKEN;
     }
 
@@ -26,13 +28,17 @@ public class Order {
      * @throws IllegalMoveException if the order is not TAKEN (already ready, served, cancelled...)
      */
     public void advancePrep() {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        if (status != OrderStatus.TAKEN) {
+            throw new IllegalMoveException(describe() + " does not need cooking (it is " + status + ")");
+        }
+        unitsDone++;
+        if (unitsDone >= item.getPrepUnits()) {
+            status = OrderStatus.READY;
+        }
     }
 
     public boolean isReady() {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        return status == OrderStatus.READY;
     }
 
     /**
@@ -41,20 +47,26 @@ public class Order {
      * by turn order (Waiter acts before Chef), not here.
      */
     public void markServed() {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        if (status != OrderStatus.READY) {
+            throw new IllegalMoveException(describe() + " is not ready to serve (it is " + status + ")");
+        }
+        status = OrderStatus.SERVED;
     }
 
     /** @throws IllegalMoveException if the order is not SERVED */
     public void markPaid() {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        if (status != OrderStatus.SERVED) {
+            throw new IllegalMoveException(describe() + " cannot be paid (it is " + status + ")");
+        }
+        status = OrderStatus.PAID;
     }
 
     /** Called when the customer abandons. Only an unfinished order (TAKEN/READY) can be cancelled. */
     public void cancel() {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        if (status != OrderStatus.TAKEN && status != OrderStatus.READY) {
+            throw new IllegalMoveException(describe() + " cannot be cancelled (it is " + status + ")");
+        }
+        status = OrderStatus.CANCELLED;
     }
 
     /**
@@ -63,8 +75,7 @@ public class Order {
      * (Stage 2 VIP discount / Stage 3 Happy Hour will change this — don't add them yet.)
      */
     public int billCents() {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        return item.getPriceCents();
     }
 
     public MenuItem getItem() {
@@ -81,5 +92,15 @@ public class Order {
 
     public int getUnitsDone() {
         return unitsDone;
+    }
+
+    private String describe() {
+        return "Order for customer " + customer.getId() + " (" + item.getName() + ")";
+    }
+
+    @Override
+    public String toString() {
+        return describe() + " - " + status
+                + (status == OrderStatus.TAKEN ? " " + unitsDone + "/" + item.getPrepUnits() : "");
     }
 }

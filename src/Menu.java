@@ -11,8 +11,14 @@ public class Menu {
     private final List<MenuItem> items;
 
     public Menu(List<MenuItem> items) {
-        // TODO: reject a null or empty list (the UML says 1..* items)
-        // Defensive copy, so outside code can't change our list later (encapsulation)
+        if (items == null || items.isEmpty()) {
+            throw new IllegalArgumentException("A menu needs at least one item");
+        }
+        for (MenuItem item : items) {
+            if (item == null) {
+                throw new IllegalArgumentException("Menu items cannot be null");
+            }
+        }
         this.items = new ArrayList<>(items);
     }
 
@@ -26,8 +32,10 @@ public class Menu {
      * @return the item at that position
      */
     public MenuItem getItem(int index) {
-        // TODO: if index is out of range, throw an exception with a clear message
-        //       (decide: IllegalArgumentException or IllegalMoveException?)
+        if (index < 0 || index >= items.size()) {
+            throw new IndexOutOfBoundsException(
+                    "No menu item at index " + index + " (menu has " + items.size() + ")");
+        }
         return items.get(index);
     }
 

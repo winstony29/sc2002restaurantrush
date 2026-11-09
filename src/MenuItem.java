@@ -9,8 +9,15 @@ public class MenuItem {
     private final int prepUnits;    // how many Chef turns this dish needs
 
     public MenuItem(String name, int priceCents, int prepUnits) {
-        // TODO: validate arguments (name not null/blank, priceCents >= 0, prepUnits >= 1)
-        //       and throw IllegalArgumentException if invalid
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Menu item needs a name");
+        }
+        if (priceCents < 0) {
+            throw new IllegalArgumentException("Price cannot be negative: " + priceCents);
+        }
+        if (prepUnits < 1) {
+            throw new IllegalArgumentException("Prep units must be at least 1: " + prepUnits);
+        }
         this.name = name;
         this.priceCents = priceCents;
         this.prepUnits = prepUnits;
@@ -30,7 +37,7 @@ public class MenuItem {
 
     @Override
     public String toString() {
-        // TODO: return something readable for the CLI, e.g. "Pasta ($18.00, 2 units)"
-        return name;
+        return String.format("%s ($%d.%02d, %d prep)",
+                name, priceCents / 100, priceCents % 100, prepUnits);
     }
 }

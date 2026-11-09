@@ -15,8 +15,7 @@ public class Table {
     }
 
     public boolean isFree() {
-        // TODO: a table is free when no customer is sitting at it
-        throw new UnsupportedOperationException("TODO");
+        return customer == null;
     }
 
     /**
@@ -24,17 +23,19 @@ public class Table {
      * @throws IllegalMoveException if the table is already occupied
      */
     public void seat(Customer c) {
-        // TODO: 1. if not free -> throw new IllegalMoveException("Table " + tableId + " is occupied")
-        //       2. store the customer
-        // Think: should Table also call c.seatAt(this), or should Waiter do both?
-        //        Pick ONE place so the link isn't set twice. Agree with whoever writes Waiter/Customer.
-        throw new UnsupportedOperationException("TODO");
+         if (c == null) {
+            throw new IllegalArgumentException("Cannot seat a null customer");
+        }
+        if (!isFree()) {
+            throw new IllegalMoveException("Table " + tableId
+                    + " is already taken by customer " + customer.getId());
+        }
+        this.customer = c;
     }
 
     /** Free the table (called when the customer pays or leaves). */
     public void clear() {
-        // TODO: remove the customer reference
-        throw new UnsupportedOperationException("TODO");
+        this.customer = null;
     }
 
     public int getTableId() {
@@ -43,5 +44,10 @@ public class Table {
 
     public Customer getCustomer() {
         return customer;
+    }
+
+     @Override
+    public String toString() {
+        return "Table " + tableId + (isFree() ? " (free)" : " (customer " + customer.getId() + ")");
     }
 }
