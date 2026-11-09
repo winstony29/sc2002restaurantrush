@@ -20,23 +20,23 @@
 
 ## Contracts Game relies on
 
-Game passes the manager's choice straight to the staff. Each rule is checked by exactly one class. Illegal moves throw `IllegalMoveException` (never a `NullPointerException`) before that class changes its own state.
+Game passes the manager's choice straight to the staff. Each class guards its own transitions. A staff member that coordinates several objects also checks every condition by itself. Illegal moves throw `IllegalMoveException` (never a `NullPointerException`) before that class changes its own state.
 
-Staff only check that they have not acted this turn and that their arguments are not null. Status rules live in the class that owns the state and are reached by delegation.
+Staff check availability, null arguments, and the relevant status conditions before changing any objects. For actions involving multiple objects, validate all required conditions before the first update so a rejected action leaves the state unchanged. Individual classes also enforce their own status rules.
 
 | Class (owner) | Method | Throws `IllegalMoveException` if |
 |---------------|--------|-----------------------------------|
 | IllegalMoveException (Myat) | constructor | Never; it must extend `RuntimeException` so it can be thrown without changing the UML signatures. |
 | Staff (Darren) | `requireAvailable()` | The staff member already acted this turn. |
-| Waiter (Darren) | `seat(c, t)` | `c` or `t` is null. Delegates to `Table.seat(c)` and `Customer.seatAt(t)`. |
-| Waiter (Darren) | `takeOrder(c, m)` | `c` or `m` is null. Delegates to `Customer.placeOrder(o)`. |
-| Waiter (Darren) | `serve(o, turn)` | `o` is null (customer has not ordered). Delegates to `Order.markServed()`. |
-| Chef (Darren) | `cook(o)` | `o` is null. Delegates to `Order.advancePrep()`. |
-| Cashier (Darren) | `collect(c)` | `c` is null. Delegates to `Customer.markPaid()`; marks the order PAID, frees the table and returns the bill in cents. |
+| Waiter (Darren) | `seat(c, t)` | Already acted, `c` or `t` is null, `t` is occupied, or `c` is not WAITING. All checked before calling `Table.seat(c)` and `Customer.seatAt(t)`. |
+| Waiter (Darren) | `takeOrder(c, m)` | Already acted, `c` or `m` is null, or `c` is not SEATED. All checked before creating the order and calling `Customer.placeOrder(o)`. |
+| Waiter (Darren) | `serve(o, turn)` | Already acted, `o` is null (customer has not ordered), or `o` is not READY. All checked before calling `Order.markServed()` and `Customer.markServed(turn)`. |
+| Chef (Darren) | `cook(o)` | Already acted, `o` is null, or `o` is not TAKEN. Checked before calling `Order.advancePrep()`. |
+| Cashier (Darren) | `collect(c)` | Already acted, `c` is null, or `c` is not READY_TO_PAY. All checked before calling `Customer.markPaid()`, marking the order PAID and freeing the table; returns the bill in cents. |
 | Table (Myat) | `seat(c)` | The table is occupied. |
 | Customer (Sadhana) | `seatAt(t)` | The customer is not WAITING. |
 | Customer (Sadhana) | `placeOrder(o)` | The customer is not SEATED. |
-| Customer (Sadhana) | `markPaid()` | The customer is not READY_TO_PAY (so `Cashier.collect(c)` throws through this call). |
+| Customer (Sadhana) | `markPaid()` | The customer is not READY_TO_PAY (`Cashier.collect(c)` already rejects a customer who is not READY_TO_PAY before calling this). |
 | Order (Myat) | `markServed()` | The order is not READY. |
 | Order (Myat) | `advancePrep()` | The order is not TAKEN. |
 | Order (Myat) | `cancel()` | Never from TAKEN or READY (called by `Game.abandon()`). |
