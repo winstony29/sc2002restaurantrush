@@ -124,7 +124,15 @@ public class Game {
 
     // Step 5: unserved waiting/seated customers lose satisfaction; those at 0 abandon.
     private void processWaitingAndAbandonment() {
-        throw new UnsupportedOperationException("TODO");
+        for (Customer c : customers) {
+            CustomerStatus s = c.getStatus();
+            if (s == CustomerStatus.WAITING || s == CustomerStatus.SEATED || s == CustomerStatus.ORDERED) {
+                c.loseSatisfactionForWaiting();
+                if (c.hasGivenUp()) {
+                    abandon(c);
+                }
+            }
+        }
     }
 
     // Cancels the customer's unfinished order, frees their table, removes them from the queue.
