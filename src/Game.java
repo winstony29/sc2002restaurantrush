@@ -129,7 +129,7 @@ public class Game {
     }
 
     public List<Order> getOrders() {
-        throw new UnsupportedOperationException("TODO");
+        return List.copyOf(orders);
     }
 
     public Menu getMenu() {
