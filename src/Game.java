@@ -148,7 +148,7 @@ public class Game {
     }
 
     public boolean isOver() {
-        throw new UnsupportedOperationException("TODO");
+        return turn >= maxTurns;
     }
 
     // >= 4 paid AND revenue >= $45.00 AND average paid satisfaction >= 60.
