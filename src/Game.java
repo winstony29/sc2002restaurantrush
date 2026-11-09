@@ -158,7 +158,7 @@ public class Game {
 
     // Empty when no one has paid yet (displayed as N/A).
     public OptionalDouble averageSatisfaction() {
-        throw new UnsupportedOperationException("TODO");
+        return paidSatisfactions.stream().mapToInt(Integer::intValue).average();
     }
 
     public int getRevenueCents() {
