@@ -1,4 +1,4 @@
-package restrush.sc2002restaurantrush.src;
+
 
 
 public class Waiter extends Staff {
@@ -29,7 +29,7 @@ public class Waiter extends Staff {
 
         // Seat the customer
         t.seat(c);
-        c.assignTable(t);
+        c.seatAt(t);
 
         markActed();
     }

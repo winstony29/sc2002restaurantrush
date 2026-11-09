@@ -1,4 +1,4 @@
-package restrush.sc2002restaurantrush.src;
+
 
 /**
  * Abstract superclass for all restaurant staff.
