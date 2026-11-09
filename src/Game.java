@@ -60,7 +60,9 @@ public class Game {
 
     // Step 2-3: Waiter choice first, then Chef choice, each retried until legal.
     private void applyManagerChoices() {
-        throw new UnsupportedOperationException("TODO");
+        // Waiter first, so a dish finished by the Chef this turn cannot be served until next turn.
+        retryUntilValid(() -> applyWaiterChoice(cli.readWaiterChoice(this)));
+        retryUntilValid(() -> applyChefChoice(cli.readChefChoice(this)));
     }
 
     // The single error route: runs the move, and on IllegalMoveException shows why and asks again.
