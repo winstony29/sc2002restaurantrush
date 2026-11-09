@@ -76,7 +76,15 @@ public class Game {
     }
 
     private void applyWaiterChoice(WaiterChoice choice) {
-        throw new UnsupportedOperationException("TODO");
+        switch (choice.kind()) {
+            case SEAT -> {
+                waiter.seat(choice.customer(), choice.table());
+                waitingQueue.remove(choice.customer()); // only reached if seat() did not throw
+            }
+            case TAKE_ORDER -> orders.add(waiter.takeOrder(choice.customer(), menu));
+            case SERVE -> waiter.serve(choice.customer().getOrder(), turn);
+            case WAIT -> { }
+        }
     }
 
     private void applyChefChoice(ChefChoice choice) {
