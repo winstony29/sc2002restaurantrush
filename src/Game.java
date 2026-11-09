@@ -133,7 +133,7 @@ public class Game {
     }
 
     public Menu getMenu() {
-        throw new UnsupportedOperationException("TODO");
+        return menu;
     }
 
     public int getPaidCount() {
