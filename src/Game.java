@@ -141,7 +141,12 @@ public class Game {
     }
 
     public int getServedCount() {
-        throw new UnsupportedOperationException("TODO");
+        // A served customer never loses satisfaction, so can never become LEFT.
+        return (int) customers.stream()
+                .filter(c -> c.getStatus() == CustomerStatus.SERVED
+                        || c.getStatus() == CustomerStatus.READY_TO_PAY
+                        || c.getStatus() == CustomerStatus.PAID)
+                .count();
     }
 
     public int getUnhappyDepartures() {
