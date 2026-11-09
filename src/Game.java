@@ -121,7 +121,7 @@ public class Game {
     }
 
     public List<Table> getTables() {
-        throw new UnsupportedOperationException("TODO");
+        return List.copyOf(tables);
     }
 
     public List<Customer> getCustomers() {
