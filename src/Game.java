@@ -107,7 +107,7 @@ public class Game {
 
     private void applyChefChoice(ChefChoice choice) {
         switch (choice.kind()) {
-            case COOK -> chef.cook(choice.table().getCustomer().getOrder());
+            case COOK -> chef.cook(choice.order());
             case WAIT -> { }
         }
     }
