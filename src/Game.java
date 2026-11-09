@@ -137,7 +137,7 @@ public class Game {
     }
 
     public int getPaidCount() {
-        throw new UnsupportedOperationException("TODO");
+        return paidSatisfactions.size();
     }
 
     public int getServedCount() {
