@@ -43,7 +43,10 @@ public class Game {
 
     // Loops runTurn() until isOver(), then shows the result.
     public void runGame() {
-        throw new UnsupportedOperationException("TODO");
+        while (!isOver()) {
+            runTurn();
+        }
+        cli.displayResult(this);
     }
 
     // One turn: reset staff, arrival, start screen, manager choices, eating/payment, waiting/abandonment.
