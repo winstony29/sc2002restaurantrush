@@ -49,7 +49,13 @@ public class Game {
 
     // Step 1: the scheduled customer joins the waiting queue.
     private void processArrival() {
-        throw new UnsupportedOperationException("TODO");
+        for (int arrivalTurn : arrivalTurns) {
+            if (arrivalTurn == turn) {
+                Customer c = new Customer(customers.size() + 1);
+                customers.add(c);
+                waitingQueue.add(c);
+            }
+        }
     }
 
     // Step 2-3: Waiter choice first, then Chef choice, each retried until legal.
