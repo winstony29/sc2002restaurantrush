@@ -98,7 +98,16 @@ public class Game {
 
     // Step 4: served customers finish eating; Cashier.collect() charges at most one.
     private void processEatingAndPayment() {
-        throw new UnsupportedOperationException("TODO");
+        for (Customer c : customers) {
+            if (c.getStatus() == CustomerStatus.SERVED && c.getServedTurn() < turn) {
+                c.markReadyToPay(turn);
+            }
+        }
+        Customer payer = nextCustomerToPay();
+        if (payer != null) {
+            revenueCents += cashier.collect(payer);
+            paidSatisfactions.add(payer.getSatisfaction());
+        }
     }
 
     // Oldest READY_TO_PAY customer who became ready on an earlier turn, or null.
