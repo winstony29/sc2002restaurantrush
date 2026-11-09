@@ -113,7 +113,7 @@ public class Game {
     }
 
     public int getMaxTurns() {
-        throw new UnsupportedOperationException("TODO");
+        return maxTurns;
     }
 
     public List<Customer> getWaitingQueue() {
