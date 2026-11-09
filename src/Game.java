@@ -125,7 +125,7 @@ public class Game {
     }
 
     public List<Customer> getCustomers() {
-        throw new UnsupportedOperationException("TODO");
+        return List.copyOf(customers);
     }
 
     public List<Order> getOrders() {
