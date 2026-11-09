@@ -154,7 +154,7 @@ public class Game {
     }
 
     public List<Table> getFreeTables() {
-        throw new UnsupportedOperationException("TODO");
+        return tables.stream().filter(Table::isFree).toList();
     }
 
     public List<Customer> getCustomersToOrder() {
