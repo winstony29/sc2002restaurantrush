@@ -100,7 +100,7 @@ public class Game {
                 waitingQueue.remove(choice.customer()); // only reached if seat() did not throw
             }
             case TAKE_ORDER -> orders.add(waiter.takeOrder(choice.customer(), menu));
-            case SERVE -> waiter.serve(choice.customer().getOrder(), turn);
+            case SERVE -> waiter.serve(choice.customer() == null ? null : choice.customer().getOrder(), turn);
             case WAIT -> { }
         }
     }
