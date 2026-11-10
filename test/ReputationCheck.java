@@ -1,4 +1,3 @@
-package test;
 
 public class ReputationCheck {
     private static final int REGULAR = 8;
