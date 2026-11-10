@@ -51,6 +51,9 @@ public class Game {
 
     // One turn: reset staff, arrival, start screen, manager choices, eating/payment, waiting/abandonment.
     public void runTurn() {
+        if (isOver()) {
+            throw new IllegalStateException("The game is over");
+        }
         turn++;
         for (Staff s : staff) {
             s.resetTurn();
