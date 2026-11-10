@@ -15,6 +15,10 @@ public enum Reputation {
     private static final int MIN_LOSS = 1;
 
     private final int lossChange;
+
+    Reputation(int lossChange) {
+        this.lossChange = lossChange;
+    }
    
     public int adjustLoss(int base) {
        return Math.max(MIN_LOSS, base + lossChange);
