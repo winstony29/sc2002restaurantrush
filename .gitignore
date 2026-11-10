@@ -17,3 +17,9 @@ bin/
 
 # OS
 .DS_Store
+
+# Local compile stubs for classes owned by teammates
+stubs/
+
+# Brief and UML, kept local for now
+docs/
