@@ -1,15 +1,29 @@
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.OptionalDouble;
 import java.util.Queue;
+import java.util.function.IntFunction;
 
 // «control» Owns the restaurant state and runs the 18-turn game loop.
 public class Game {
     private final RestaurantCLI cli;
     private int turn;
     private final int maxTurns = 18;
-    private final int[] arrivalTurns = {1, 4, 7, 10, 13, 16};
+    // "A reproducible base-setting run must include at least one VIP and one Critic.
+    //  You may replace two of the regular arrivals; there must still be six arrivals."
+    // "Different behaviour must be dispatched through the customer objects, not through
+    //  a chain of type checks in the turn controller."
+    // This map is the only place Game names a customer type.
+    private final Map<Integer, IntFunction<Customer>> arrivals = Map.of(
+            1, RegularCustomer::new,
+            4, VIPCustomer::new,
+            7, CriticCustomer::new,
+            10, RegularCustomer::new,
+            13, RegularCustomer::new,
+            16, RegularCustomer::new);
+    private Reputation reputation = Reputation.NEUTRAL;
     private final List<Table> tables = new ArrayList<>();
     private final Queue<Customer> waitingQueue = new ArrayDeque<>();
     private final List<Customer> customers = new ArrayList<>();
@@ -68,12 +82,11 @@ public class Game {
 
     // Step 1: the scheduled customer joins the waiting queue.
     private void processArrival() {
-        for (int arrivalTurn : arrivalTurns) {
-            if (arrivalTurn == turn) {
-                Customer c = new Customer(customers.size() + 1);
-                customers.add(c);
-                waitingQueue.add(c);
-            }
+        IntFunction<Customer> arrival = arrivals.get(turn);
+        if (arrival != null) {
+            Customer c = arrival.apply(customers.size() + 1);
+            customers.add(c);
+            waitingQueue.add(c);
         }
     }
 
@@ -103,14 +116,26 @@ public class Game {
                 waitingQueue.remove(choice.customer()); // only reached if seat() did not throw
             }
             case TAKE_ORDER -> orders.add(waiter.takeOrder(choice.customer(), menu));
-            case SERVE -> waiter.serve(choice.customer() == null ? null : choice.customer().getOrder(), turn);
+            case SERVE -> {
+                Order o = choice.customer() == null ? null : choice.customer().getOrder();
+                waiter.serve(o, turn);
+                // Critic: "A distinct order preference or reaction to service that you define and document"
+                // This is our definition of the Critic's reaction to service which we decided on. See DESIGN_NOTES.md for details.
+                // Only reached if serve() did not throw; the customer decides its own rating.
+                Rating r = choice.customer().rateService(o, turn);
+                if (r != Rating.NONE) {
+                    reputation = Reputation.valueOf(r.name());
+                }
+            }
             case WAIT -> { }
         }
     }
 
     private void applyChefChoice(ChefChoice choice) {
         switch (choice.kind()) {
-            case COOK -> chef.cook(choice.order());
+            // Critic: "A distinct order preference or reaction to service that you define and document"
+            // The turn lets the Order record when it became READY, which the Critic's rating uses.
+            case COOK -> chef.cook(choice.order(), turn);
             case WAIT -> { }
         }
     }
@@ -146,7 +171,10 @@ public class Game {
         for (Customer c : customers) {
             CustomerStatus s = c.getStatus();
             if (s == CustomerStatus.WAITING || s == CustomerStatus.SEATED || s == CustomerStatus.ORDERED) {
-                c.loseSatisfactionForWaiting();
+                // "Different behaviour must be dispatched through the customer objects, not through
+                //  a chain of type checks in the turn controller."
+                // Each customer computes its own loss; Game only passes the current reputation in.
+                c.loseSatisfactionForWaiting(reputation);
                 if (c.hasGivenUp()) {
                     abandon(c);
                 }
@@ -184,6 +212,10 @@ public class Game {
 
     public int getRevenueCents() {
         return revenueCents;
+    }
+
+    public Reputation getReputation() {
+        return reputation;
     }
 
     public int getTurn() {
