@@ -152,6 +152,7 @@ public class RestaurantCLI {
         System.out.println();
         System.out.println("  Revenue " + money(g.getRevenueCents()) + "   |   Paid " + g.getPaidCount()
                 + "   |   Avg satisfaction " + average(g));
+        System.out.println("  Reputation " + g.getReputation());
  
         System.out.println();
         System.out.println("  WAITING");
@@ -185,8 +186,9 @@ public class RestaurantCLI {
                         o.getItem().getName(), o.getUnitsDone(), o.getItem().getPrepUnits());
                 any = true;
             } else if (o.getStatus() == OrderStatus.READY) {
-                System.out.printf("    %-13s %-21s READY to serve%n", label(o.getCustomer()),
-                        o.getItem().getName());
+                String since = o.getReadyTurn() > 0 ? " (ready since turn " + o.getReadyTurn() + ")" : "";
+                System.out.printf("    %-13s %-21s READY to serve%s%n", label(o.getCustomer()),
+                        o.getItem().getName(), since);
                 any = true;
             }
         }
@@ -211,7 +213,7 @@ public class RestaurantCLI {
         System.out.println("  END OF TURN " + g.getTurn() + " of " + g.getMaxTurns());
         System.out.println("  Revenue " + money(g.getRevenueCents()) + "   |   Served " + g.getServedCount()
                 + "   |   Paid " + g.getPaidCount() + "   |   Left unhappy " + g.getUnhappyDepartures());
-        System.out.println("  Avg satisfaction " + average(g)
+        System.out.println("  Avg satisfaction " + average(g) + "   |   Reputation " + g.getReputation()
                 + "   |   Turns used " + g.getTurn() + " of " + g.getMaxTurns());
         System.out.println(THIN);
     }
@@ -373,8 +375,17 @@ public class RestaurantCLI {
         return avg.isPresent() ? String.format("%.1f", avg.getAsDouble()) : "N/A";
     }
  
+    /**
+     * "c2 VIP", "c3 Critic", "c1 Regular". Display only: the type comes from
+     * the subclass name (VIPCustomer -> VIP), so a new customer type shows up
+     * here with no change to the CLI. A plain Customer is shown as just "c1".
+     */
     private static String label(Customer c) {
-        return "c" + c.getId();
+        String type = c.getClass().getSimpleName();
+        if (type.endsWith("Customer")) {
+            type = type.substring(0, type.length() - "Customer".length());
+        }
+        return type.isEmpty() ? "c" + c.getId() : "c" + c.getId() + " " + type;
     }
  
     private static String customerIds(List<Customer> list) {

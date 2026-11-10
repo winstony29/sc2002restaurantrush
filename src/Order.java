@@ -12,6 +12,7 @@ public class Order {
     private final Customer customer;
     private int unitsDone = 0;
     private OrderStatus status;
+    private int readyTurn = -1; 
 
     public Order(MenuItem item, Customer customer) {
         if (item == null || customer == null) {
@@ -27,15 +28,17 @@ public class Order {
      * When unitsDone reaches item.getPrepUnits(), status becomes READY.
      * @throws IllegalMoveException if the order is not TAKEN (already ready, served, cancelled...)
      */
-    public void advancePrep() {
+    public void advancePrep(int turn) {
         if (status != OrderStatus.TAKEN) {
             throw new IllegalMoveException(describe() + " does not need cooking (it is " + status + ")");
         }
         unitsDone++;
         if (unitsDone >= item.getPrepUnits()) {
             status = OrderStatus.READY;
+            readyTurn = turn;
         }
     }
+
 
     public boolean isReady() {
         return status == OrderStatus.READY;
@@ -74,7 +77,8 @@ public class Order {
      * Stage 1: just the item's price.
      * (Stage 2 VIP discount / Stage 3 Happy Hour will change this — don't add them yet.)
      */
-    public int billCents() {
+
+    public int basePriceCents() {
         return item.getPriceCents();
     }
 
@@ -92,6 +96,10 @@ public class Order {
 
     public int getUnitsDone() {
         return unitsDone;
+    }
+
+    public int getReadyTurn() {
+        return readyTurn;
     }
 
     private String describe() {
