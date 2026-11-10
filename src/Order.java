@@ -39,9 +39,6 @@ public class Order {
         }
     }
 
-    public void advancePrep() {
-        advancePrep(-1);
-    }
 
     public boolean isReady() {
         return status == OrderStatus.READY;
