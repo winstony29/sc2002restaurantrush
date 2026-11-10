@@ -375,8 +375,17 @@ public class RestaurantCLI {
         return avg.isPresent() ? String.format("%.1f", avg.getAsDouble()) : "N/A";
     }
  
+    /**
+     * "c2 VIP", "c3 Critic", "c1 Regular". Display only: the type comes from
+     * the subclass name (VIPCustomer -> VIP), so a new customer type shows up
+     * here with no change to the CLI. A plain Customer is shown as just "c1".
+     */
     private static String label(Customer c) {
-        return "c" + c.getId();
+        String type = c.getClass().getSimpleName();
+        if (type.endsWith("Customer")) {
+            type = type.substring(0, type.length() - "Customer".length());
+        }
+        return type.isEmpty() ? "c" + c.getId() : "c" + c.getId() + " " + type;
     }
  
     private static String customerIds(List<Customer> list) {
