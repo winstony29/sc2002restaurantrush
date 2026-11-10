@@ -213,7 +213,7 @@ public class RestaurantCLI {
         System.out.println("  END OF TURN " + g.getTurn() + " of " + g.getMaxTurns());
         System.out.println("  Revenue " + money(g.getRevenueCents()) + "   |   Served " + g.getServedCount()
                 + "   |   Paid " + g.getPaidCount() + "   |   Left unhappy " + g.getUnhappyDepartures());
-        System.out.println("  Avg satisfaction " + average(g)
+        System.out.println("  Avg satisfaction " + average(g) + "   |   Reputation " + g.getReputation()
                 + "   |   Turns used " + g.getTurn() + " of " + g.getMaxTurns());
         System.out.println(THIN);
     }
