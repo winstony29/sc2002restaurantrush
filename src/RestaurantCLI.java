@@ -152,6 +152,7 @@ public class RestaurantCLI {
         System.out.println();
         System.out.println("  Revenue " + money(g.getRevenueCents()) + "   |   Paid " + g.getPaidCount()
                 + "   |   Avg satisfaction " + average(g));
+        System.out.println("  Reputation " + g.getReputation());
  
         System.out.println();
         System.out.println("  WAITING");
@@ -185,8 +186,9 @@ public class RestaurantCLI {
                         o.getItem().getName(), o.getUnitsDone(), o.getItem().getPrepUnits());
                 any = true;
             } else if (o.getStatus() == OrderStatus.READY) {
-                System.out.printf("    %-13s %-21s READY to serve%n", label(o.getCustomer()),
-                        o.getItem().getName());
+                String since = o.getReadyTurn() > 0 ? " (ready since turn " + o.getReadyTurn() + ")" : "";
+                System.out.printf("    %-13s %-21s READY to serve%s%n", label(o.getCustomer()),
+                        o.getItem().getName(), since);
                 any = true;
             }
         }
