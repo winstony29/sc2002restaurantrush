@@ -80,7 +80,8 @@ public class Order {
      * Stage 1: just the item's price.
      * (Stage 2 VIP discount / Stage 3 Happy Hour will change this — don't add them yet.)
      */
-    public int billCents() {
+
+    public int basePriceCents() {
         return item.getPriceCents();
     }
 
