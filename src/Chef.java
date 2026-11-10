@@ -7,8 +7,8 @@
  * preparation progress.
  */
 public class Chef extends Staff {
-
-    public void cook(Order o) {
+    // argument changed from stage 1 to include turn 
+    public void cook(Order o, int turn) {
         requireAvailable();
 
         // Check that the order exists
@@ -26,7 +26,7 @@ public class Chef extends Staff {
         }
 
         // Advance preparation by one unit
-        o.advancePrep();
+        o.advancePrep(turn);
 
         // Mark Chef as having acted successfully
         markActed();
