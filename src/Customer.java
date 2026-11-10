@@ -3,7 +3,7 @@
  * Tracks their satisfaction, order, table and current status.
  */
 
-public class Customer {
+public abstract class Customer {
     // Customer ID is final as it should not change after creation.
     private final int id;
     private int satisfaction;
@@ -116,12 +116,19 @@ public class Customer {
         status = CustomerStatus.LEFT;
     }
 
+    protected abstract int waitingLoss();
+
     // Customers lose satisfaction while waiting for a table or food.
     public void loseSatisfactionForWaiting() {
+        loseSatisfactionForWaiting(Reputation.NEUTRAL);
+    }
+
+    public void loseSatisfactionForWaiting(Reputation r) {
         if (status == CustomerStatus.WAITING
                 || status == CustomerStatus.SEATED
                 || status == CustomerStatus.ORDERED) {
-            satisfaction = Math.max(0, satisfaction - 8);
+            int penalty = r.adjustLoss(waitingLoss());
+            satisfaction = Math.max(0, satisfaction - penalty);
         }
     }
 
@@ -140,6 +147,14 @@ public class Customer {
 
         int index = (id - 1) % menu.getItems().size();
         return menu.getItem(index);
+    }
+
+    public int applyDiscount(int cents) {
+        return cents;
+    }
+
+    public Rating rateService(Order order, int currentTurn) {
+        return Rating.NONE;
     }
 
     private void requireStatus(CustomerStatus expectedStatus, String message) {
