@@ -100,6 +100,10 @@ public class Order {
         return unitsDone;
     }
 
+    public int getReadyTurn() {
+        return readyTurn;
+    }
+
     private String describe() {
         return "Order for customer " + customer.getId() + " (" + item.getName() + ")";
     }
