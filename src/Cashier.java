@@ -1,6 +1,4 @@
 
-
-
 /**
  * Cashier handles customer payments and frees
  * the occupied table after successful payment.
@@ -39,8 +37,8 @@ public class Cashier extends Staff {
             );
         }
 
-        // Calculate bill
-        int bill = o.billCents();
+        // Calculate bill (changed since stage 1)
+        int bill = c.applyDiscount(o.basePriceCents());
 
         // Complete payment
         o.markPaid();
