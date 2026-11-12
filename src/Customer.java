@@ -132,6 +132,18 @@ public abstract class Customer {
         }
     }
 
+    public void recoverSatisfaction(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Recovery amount cannot be negative.");
+        }
+
+        if (status == CustomerStatus.WAITING
+                || status == CustomerStatus.SEATED
+                || status == CustomerStatus.ORDERED) {
+            satisfaction += Math.min(amount, 100 - satisfaction);
+        }
+    }
+
     public boolean hasGivenUp() {
         return satisfaction == 0
                 && (status == CustomerStatus.WAITING
