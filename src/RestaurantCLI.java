@@ -124,6 +124,68 @@ public class RestaurantCLI {
         }
     }
  
+    // ------------------------------------------------------------ Stage 3 input
+
+    /**
+     * Stage 3: ask what the Host does this turn: seat one queued customer at a
+     * free table, or wait. The Host only seats, so this is a short version of
+     * the SEAT branch in readWaiterChoice.
+     *
+     * Hints:
+     *  - If nobody is waiting or no table is free, you could skip the question
+     *    and return HostChoice.waitTurn() straight away (fewer pointless prompts).
+     *  - Reuse askCustomer / askTable; blank input ("go back") can mean wait.
+     *  - Input ended (askCustomer returns null at end of a replay file) -> wait,
+     *    like the other read methods.
+     *  - Don't check whether the seat is legal here: Host.seat() throws
+     *    IllegalMoveException and Game calls displayError and asks again.
+     */
+    public HostChoice readHostChoice(Game g) {
+        // TODO
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    /**
+     * Stage 3: offered at the start of a turn while Happy Hour is still unused
+     * (Game only calls this if !happyHour.isUsed()).
+     * Read y / n; re-prompt on anything else. Input ended -> false.
+     * Tip: say what it does (20% off orders taken while active, +15 satisfaction
+     * for waiting customers, lasts this turn and next, once per game).
+     */
+    public boolean askActivateHappyHour(Game g) {
+        // TODO
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    // ----------------------------------------------------------- Stage 3 output
+
+    /** Stage 3: confirm Happy Hour has started and how many turns it lasts (g.getHappyHour().remainingTurns(g.getTurn())). */
+    public void displayHappyHour(Game g) {
+        // TODO
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    /**
+     * Stage 3: one line per customer who recovered satisfaction during Happy Hour,
+     * e.g. "c3 (VIP) recovers to 87". Game passes the value after recovery (capped at 100).
+     */
+    public void displayRecovery(Customer c, int newValue) {
+        // TODO
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    /**
+     * Stage 2 Critic, shown when a rating happens,
+     * e.g. "Critic c4 rates the food GOOD. Reputation is now GOOD."
+     * Tip: say what the reputation means for waiting customers
+     *      (lossChange: lose 2 less / 2 more per turn) so the player sees the effect.
+     *      Decide what to show for Rating.NONE, or check Game never calls this with NONE.
+     */
+    public void displayReview(Customer c, Rating rating, Reputation reputation) {
+        // TODO
+        throw new UnsupportedOperationException("TODO");
+    }
+
     /** Called by Game when a staff action throws IllegalMoveException. */
     public void displayError(String reason) {
         System.out.println();
@@ -153,7 +215,12 @@ public class RestaurantCLI {
         System.out.println("  Revenue " + money(g.getRevenueCents()) + "   |   Paid " + g.getPaidCount()
                 + "   |   Avg satisfaction " + average(g));
         System.out.println("  Reputation " + g.getReputation());
- 
+        // TODO (Stage 3): Happy Hour status line. Brief: "Display its remaining duration".
+        //   active    -> e.g. "Happy Hour ON: 20% off new orders, 2 turns left"  (remainingTurns(turn))
+        //   not used  -> e.g. "Happy Hour available (once per game)"
+        //   used up   -> e.g. "Happy Hour used"
+        //   Use g.getHappyHour().isActive(g.getTurn()) / isUsed(): ask, don't recalculate the rules.
+
         System.out.println();
         System.out.println("  WAITING");
         List<Customer> waiting = g.getWaitingQueue();
@@ -198,6 +265,9 @@ public class RestaurantCLI {
  
         System.out.println();
         System.out.println("  WHAT YOUR STAFF CAN DO");
+        // TODO (Stage 3): a "Host" line before the Waiter, from a private hostTasks(g) helper
+        //   like waiterTasks: "seat c3, c5 (free tables: 2)" or "nothing to do".
+        //   The seat part of waiterTasks is the same, so consider sharing it.
         System.out.println("    Waiter   " + waiterTasks(g));
         System.out.println("    Chef     " + chefTasks(g));
         System.out.println(THIN);
@@ -417,4 +487,3 @@ public class RestaurantCLI {
         return String.format("$%d.%02d", cents / 100, cents % 100);
     }
 }
- 
