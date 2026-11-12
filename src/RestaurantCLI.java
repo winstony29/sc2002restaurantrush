@@ -141,8 +141,35 @@ public class RestaurantCLI {
      *    IllegalMoveException and Game calls displayError and asks again.
      */
     public HostChoice readHostChoice(Game g) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        while (true) {
+            System.out.println();
+            System.out.println("  HOST - choose one task");
+            System.out.println("    1) Seat a waiting customer");
+            System.out.println("    0) Wait");
+            Integer pick = readInt("  > ");
+            if (pick == null) {
+                return HostChoice.waitTurn(); // input ended
+            }
+            switch (pick) {
+                case 1 -> {
+                    System.out.println("    Waiting: " + customerIds(g.getWaitingQueue())
+                            + "   |   Free tables: " + tableIds(g.getFreeTables()));
+                    Customer c = askCustomer(g, "    Customer id (blank to go back): ");
+                    if (c == null) {
+                        continue;
+                    }
+                    Table t = askTable(g, "    Table id (blank to go back): ");
+                    if (t == null) {
+                        continue;
+                    }
+                    return HostChoice.seat(c, t);
+                }
+                case 0 -> {
+                    return HostChoice.waitTurn();
+                }
+                default -> System.out.println("    Please enter 0 or 1.");
+            }
+        }
     }
 
     /**
