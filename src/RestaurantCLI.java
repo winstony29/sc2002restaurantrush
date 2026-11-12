@@ -206,8 +206,7 @@ public class RestaurantCLI {
 
     /** Stage 3: confirm Happy Hour has started and how many turns it lasts (g.getHappyHour().remainingTurns(g.getTurn())). */
     public void displayHappyHour(Game g) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        System.out.println("  Happy Hour: " + happyHourStatus(g));
     }
 
     /**
@@ -215,8 +214,7 @@ public class RestaurantCLI {
      * e.g. "c3 (VIP) recovers to 87". Game passes the value after recovery (capped at 100).
      */
     public void displayRecovery(Customer c, int newValue) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        System.out.println("  Happy Hour: " + label(c) + " recovers to satisfaction " + newValue);
     }
 
     /**
