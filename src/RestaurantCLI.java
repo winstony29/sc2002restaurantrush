@@ -480,6 +480,22 @@ public class RestaurantCLI {
     private static String chefTasks(Game g) {
         return g.getOrdersToCook().isEmpty() ? "nothing to cook" : "cook " + orderList(g.getOrdersToCook());
     }
+
+    private static String hostTasks(Game g) {
+        if (g.getWaitingQueue().isEmpty() || g.getFreeTables().isEmpty()) {
+            return "nothing to do (nobody waiting or no free table)";
+        }
+        return "seat " + customerIds(g.getWaitingQueue()) + " (free tables: " + tableIds(g.getFreeTables()) + ")";
+    }
+
+    private static String happyHourStatus(Game g) {
+        HappyHour hh = g.getHappyHour();
+        int left = hh.remainingTurns(g.getTurn());
+        if (left > 0) {
+            return "active, " + left + " turn(s) left";
+        }
+        return hh.isUsed() ? "used" : "available";
+    }
  
     private static String average(Game g) {
         OptionalDouble avg = g.averageSatisfaction();
