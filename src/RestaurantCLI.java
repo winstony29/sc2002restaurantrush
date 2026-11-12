@@ -225,8 +225,14 @@ public class RestaurantCLI {
      *      Decide what to show for Rating.NONE, or check Game never calls this with NONE.
      */
     public void displayReview(Customer c, Rating rating, Reputation reputation) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        String effect = switch (reputation) {
+            case GOOD -> "waiting customers lose 2 less per turn";
+            case BAD -> "waiting customers lose 2 more per turn";
+            case NEUTRAL -> "waiting customers lose the normal amount";
+        };
+        System.out.println();
+        System.out.println("  REVIEW: " + label(c) + " rates the service " + rating + ".");
+        System.out.println("    Reputation is now " + reputation + ": " + effect + ".");
     }
 
     /** Called by Game when a staff action throws IllegalMoveException. */
