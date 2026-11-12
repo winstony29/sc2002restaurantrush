@@ -27,13 +27,13 @@ public class Order {
         if (item == null || customer == null) {
             throw new IllegalArgumentException("An order needs an item and a customer");
         }
-         if (placedTurn < 1) {
+        if (placedTurn < 1) {
             throw new IllegalArgumentException("An order is placed on turn 1 or later, got " + placedTurn);
         }
         this.item = item;
         this.customer = customer;
         this.status = OrderStatus.TAKEN;
-        this.placedTurn = 0; // TODO: store the parameter (0 is just a placeholder so this compiles)
+        this.placedTurn = placedTurn;
     }
 
     /**
