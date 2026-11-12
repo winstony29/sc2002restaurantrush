@@ -89,7 +89,7 @@ public class Order {
      * The undiscounted price of this order, in cents (a ComboMeal already includes its 10% combo saving).
      * Order does NOT calculate the bill: Cashier applies the customer's discount (VIP)
      * and then Happy Hour, using getPlacedTurn().
-     * TODO: this comment replaced the outdated Stage 1 one. Keep it accurate if anything changes.
+
      */
     public int basePriceCents() {
         return item.getPriceCents();
@@ -117,8 +117,7 @@ public class Order {
 
     /** Stage 3: the turn this order was taken. */
     public int getPlacedTurn() {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        return placedTurn;
     }
 
     private String describe() {
