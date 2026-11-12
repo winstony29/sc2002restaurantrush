@@ -8,13 +8,11 @@
 public record HostChoice(Customer customer, Table table) {
  
     public static HostChoice seat(Customer c, Table t) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+        return new HostChoice(c, t);
     }
  
     public static HostChoice waitTurn() {
-        // TODO: the "Host waits" choice
-        throw new UnsupportedOperationException("TODO");
+       return new HostChoice(null, null);
     }
 }
  
