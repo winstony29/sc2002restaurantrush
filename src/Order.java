@@ -27,8 +27,9 @@ public class Order {
         if (item == null || customer == null) {
             throw new IllegalArgumentException("An order needs an item and a customer");
         }
-        // TODO: reject placedTurn < 1 with an IllegalArgumentException
-        //       (a programming error, not a player mistake, so not IllegalMoveException)
+         if (placedTurn < 1) {
+            throw new IllegalArgumentException("An order is placed on turn 1 or later, got " + placedTurn);
+        }
         this.item = item;
         this.customer = customer;
         this.status = OrderStatus.TAKEN;
