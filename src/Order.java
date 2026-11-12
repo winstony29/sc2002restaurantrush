@@ -12,15 +12,28 @@ public class Order {
     private final Customer customer;
     private int unitsDone = 0;
     private OrderStatus status;
-    private int readyTurn = -1; 
+    private int readyTurn = -1;
+    // Stage 3: the turn the Waiter took this order. Final: it never changes,
+    // which is what "the price is locked when the order is taken" relies on.
+    // Cashier passes it to HappyHour.discountOn(placedTurn, cents).
+    private final int placedTurn;
 
-    public Order(MenuItem item, Customer customer) {
+    /**
+     * Stage 3: replaces the 2-arg constructor (removed), so every order records its placed turn.
+     * Waiter.takeOrder(c, m, turn) already calls new Order(item, c, turn).
+     * @param placedTurn the turn the order was taken; must be >= 1
+     */
+    public Order(MenuItem item, Customer customer, int placedTurn) {
         if (item == null || customer == null) {
             throw new IllegalArgumentException("An order needs an item and a customer");
+        }
+        if (placedTurn < 1) {
+            throw new IllegalArgumentException("An order is placed on turn 1 or later, got " + placedTurn);
         }
         this.item = item;
         this.customer = customer;
         this.status = OrderStatus.TAKEN;
+        this.placedTurn = placedTurn;
     }
 
     /**
@@ -73,11 +86,11 @@ public class Order {
     }
 
     /**
-     * The amount the customer pays, in cents.
-     * Stage 1: just the item's price.
-     * (Stage 2 VIP discount / Stage 3 Happy Hour will change this — don't add them yet.)
-     */
+     * The undiscounted price of this order, in cents (a ComboMeal already includes its 10% combo saving).
+     * Order does NOT calculate the bill: Cashier applies the customer's discount (VIP)
+     * and then Happy Hour, using getPlacedTurn().
 
+     */
     public int basePriceCents() {
         return item.getPriceCents();
     }
@@ -100,6 +113,11 @@ public class Order {
 
     public int getReadyTurn() {
         return readyTurn;
+    }
+
+    /** Stage 3: the turn this order was taken. */
+    public int getPlacedTurn() {
+        return placedTurn;
     }
 
     private String describe() {
