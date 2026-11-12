@@ -180,8 +180,26 @@ public class RestaurantCLI {
      * for waiting customers, lasts this turn and next, once per game).
      */
     public boolean askActivateHappyHour(Game g) {
-        // TODO
-        throw new UnsupportedOperationException("TODO");
+       System.out.println();
+        System.out.println("  HAPPY HOUR is available (once per game). If you start it now it lasts");
+        System.out.println("  this turn and the next: orders taken get 20% off, and customers still");
+        System.out.println("  waiting for a table or food recover 15 satisfaction at each turn start.");
+        while (true) {
+            System.out.print("  Start Happy Hour on turn " + g.getTurn() + "? (y/n) > ");
+            if (!in.hasNextLine()) {
+                return false;
+            }
+            String answer = in.nextLine().trim().toLowerCase();
+            switch (answer) {
+                case "y", "yes" -> {
+                    return true;
+                }
+                case "n", "no" -> {
+                    return false;
+                }
+                default -> System.out.println("  Please enter y or n.");
+            }
+        }
     }
 
     // ----------------------------------------------------------- Stage 3 output
