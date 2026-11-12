@@ -263,13 +263,7 @@ public class RestaurantCLI {
         System.out.println();
         System.out.println("  Revenue " + money(g.getRevenueCents()) + "   |   Paid " + g.getPaidCount()
                 + "   |   Avg satisfaction " + average(g));
-        System.out.println("  Reputation " + g.getReputation());
-        // TODO (Stage 3): Happy Hour status line. Brief: "Display its remaining duration".
-        //   active    -> e.g. "Happy Hour ON: 20% off new orders, 2 turns left"  (remainingTurns(turn))
-        //   not used  -> e.g. "Happy Hour available (once per game)"
-        //   used up   -> e.g. "Happy Hour used"
-        //   Use g.getHappyHour().isActive(g.getTurn()) / isUsed(): ask, don't recalculate the rules.
-
+        System.out.println("  Reputation " + g.getReputation() + "   |   Happy Hour " + happyHourStatus(g));
         System.out.println();
         System.out.println("  WAITING");
         List<Customer> waiting = g.getWaitingQueue();
@@ -314,9 +308,7 @@ public class RestaurantCLI {
  
         System.out.println();
         System.out.println("  WHAT YOUR STAFF CAN DO");
-        // TODO (Stage 3): a "Host" line before the Waiter, from a private hostTasks(g) helper
-        //   like waiterTasks: "seat c3, c5 (free tables: 2)" or "nothing to do".
-        //   The seat part of waiterTasks is the same, so consider sharing it.
+        System.out.println("    Host     " + hostTasks(g));
         System.out.println("    Waiter   " + waiterTasks(g));
         System.out.println("    Chef     " + chefTasks(g));
         System.out.println(THIN);
