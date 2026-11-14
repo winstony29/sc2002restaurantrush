@@ -65,7 +65,7 @@ public class HappyHourTest {
         c.seatAt(new Table(1));
         checkRecovery(c, CustomerStatus.SEATED);
 
-        Order order = new Order(new MenuItem("Salad", 900, 1), c);
+        Order order = new Order(new MenuItem("Salad", 900, 1), c, 1);
         c.placeOrder(order);
         checkRecovery(c, CustomerStatus.ORDERED);
 
@@ -90,7 +90,7 @@ public class HappyHourTest {
         c.loseSatisfactionForWaiting(Reputation.NEUTRAL);
         c.seatAt(new Table(1));
 
-        Order order = new Order(new MenuItem("Salad", 900, 1), c);
+        Order order = new Order(new MenuItem("Salad", 900, 1), c, 1);
         c.placeOrder(order);
 
         order.advancePrep(1);

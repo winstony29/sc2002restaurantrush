@@ -119,9 +119,6 @@ public abstract class Customer {
     protected abstract int waitingLoss();
 
     // Customers lose satisfaction while waiting for a table or food.
-    public void loseSatisfactionForWaiting() {
-        loseSatisfactionForWaiting(Reputation.NEUTRAL);
-    }
 
     public void loseSatisfactionForWaiting(Reputation r) {
         if (status == CustomerStatus.WAITING
