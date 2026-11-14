@@ -8,9 +8,9 @@ public class Cashier extends Staff {
     public int collect(Customer c, HappyHour happyHour){
         requireAvailable();
         if (happyHour == null) {
-    throw new IllegalMoveException(
-        "Happy Hour configuration is missing."
-    );
+            throw new IllegalArgumentException(
+                "Happy Hour configuration is missing."
+            );
     }
         
         
