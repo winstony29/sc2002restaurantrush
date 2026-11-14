@@ -1,43 +1,12 @@
 
 
 
-public class Waiter extends Staff {
-
-    /**
-     * Seats a waiting customer at an available table.
-     */
-    public void seat(Customer c, Table t) {
-        requireAvailable();
-
-        if (c == null || t == null) {
-            throw new IllegalMoveException(
-                "Customer or table cannot be null."
-            );
-        }
-
-        if (c.getStatus() != CustomerStatus.WAITING) {
-            throw new IllegalMoveException(
-                "Customer is not waiting to be seated."
-            );
-        }
-
-        if (!t.isFree()) {
-            throw new IllegalMoveException(
-                "Table is already occupied."
-            );
-        }
-
-        // Seat the customer
-        t.seat(c);
-        c.seatAt(t);
-
-        markActed();
-    }
-
+public class Waiter extends Seater {
+    
     /**
      * Takes an order from a seated customer.
      */
-    public Order takeOrder(Customer c, Menu m) {
+    public Order takeOrder(Customer c, Menu m, int turn) {
         requireAvailable();
 
         if (c == null || m == null) {
@@ -68,7 +37,7 @@ public class Waiter extends Staff {
         }
 
         // Create and assign the order
-        Order order = new Order(item, c);
+        Order order = new Order(item, c, turn);
         c.placeOrder(order);
 
         markActed();

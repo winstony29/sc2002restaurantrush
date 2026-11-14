@@ -41,3 +41,7 @@ Staff check availability, null arguments, and the relevant status conditions bef
 | Order (Myat) | `advancePrep()` | The order is not TAKEN. |
 | Order (Myat) | `cancel()` | Never from TAKEN or READY (called by `Game.abandon()`). |
 | Customer (Sadhana) | `leave()` | Never from WAITING, SEATED or ORDERED (called by `Game.abandon()`). |
+
+**Stage 3 – Staff Refactoring**
+
+Moved `seat()` from `Waiter` into the new abstract `Seater` class because both `Waiter` and `Host` need to seat customers. This allows both subclasses to inherit the same seating logic, avoiding code duplication and making the design easier to maintain.
