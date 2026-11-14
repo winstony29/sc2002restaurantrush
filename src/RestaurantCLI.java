@@ -124,6 +124,117 @@ public class RestaurantCLI {
         }
     }
  
+    // ------------------------------------------------------------ Stage 3 input
+
+    /**
+     * Stage 3: ask what the Host does this turn: seat one queued customer at a
+     * free table, or wait. The Host only seats, so this is a short version of
+     * the SEAT branch in readWaiterChoice.
+     *
+     * Hints:
+     *  - If nobody is waiting or no table is free, you could skip the question
+     *    and return HostChoice.waitTurn() straight away (fewer pointless prompts).
+     *  - Reuse askCustomer / askTable; blank input ("go back") can mean wait.
+     *  - Input ended (askCustomer returns null at end of a replay file) -> wait,
+     *    like the other read methods.
+     *  - Don't check whether the seat is legal here: Host.seat() throws
+     *    IllegalMoveException and Game calls displayError and asks again.
+     */
+    public HostChoice readHostChoice(Game g) {
+        while (true) {
+            System.out.println();
+            System.out.println("  HOST - choose one task");
+            System.out.println("    1) Seat a waiting customer");
+            System.out.println("    0) Wait");
+            Integer pick = readInt("  > ");
+            if (pick == null) {
+                return HostChoice.waitTurn(); // input ended
+            }
+            switch (pick) {
+                case 1 -> {
+                    System.out.println("    Waiting: " + customerIds(g.getWaitingQueue())
+                            + "   |   Free tables: " + tableIds(g.getFreeTables()));
+                    Customer c = askCustomer(g, "    Customer id (blank to go back): ");
+                    if (c == null) {
+                        continue;
+                    }
+                    Table t = askTable(g, "    Table id (blank to go back): ");
+                    if (t == null) {
+                        continue;
+                    }
+                    return HostChoice.seat(c, t);
+                }
+                case 0 -> {
+                    return HostChoice.waitTurn();
+                }
+                default -> System.out.println("    Please enter 0 or 1.");
+            }
+        }
+    }
+
+    /**
+     * Stage 3: offered at the start of a turn while Happy Hour is still unused
+     * (Game only calls this if !happyHour.isUsed()).
+     * Read y / n; re-prompt on anything else. Input ended -> false.
+     * Tip: say what it does (20% off orders taken while active, +15 satisfaction
+     * for waiting customers, lasts this turn and next, once per game).
+     */
+    public boolean askActivateHappyHour(Game g) {
+       System.out.println();
+        System.out.println("  HAPPY HOUR is available (once per game). If you start it now it lasts");
+        System.out.println("  this turn and the next: orders taken get 20% off, and customers still");
+        System.out.println("  waiting for a table or food recover 15 satisfaction at each turn start.");
+        while (true) {
+            System.out.print("  Start Happy Hour on turn " + g.getTurn() + "? (y/n) > ");
+            if (!in.hasNextLine()) {
+                return false;
+            }
+            String answer = in.nextLine().trim().toLowerCase();
+            switch (answer) {
+                case "y", "yes" -> {
+                    return true;
+                }
+                case "n", "no" -> {
+                    return false;
+                }
+                default -> System.out.println("  Please enter y or n.");
+            }
+        }
+    }
+
+    // ----------------------------------------------------------- Stage 3 output
+
+    /** Stage 3: confirm Happy Hour has started and how many turns it lasts (g.getHappyHour().remainingTurns(g.getTurn())). */
+    public void displayHappyHour(Game g) {
+        System.out.println("  Happy Hour: " + happyHourStatus(g));
+    }
+
+    /**
+     * Stage 3: one line per customer who recovered satisfaction during Happy Hour,
+     * e.g. "c3 (VIP) recovers to 87". Game passes the value after recovery (capped at 100).
+     */
+    public void displayRecovery(Customer c, int newValue) {
+        System.out.println("  Happy Hour: " + label(c) + " recovers to satisfaction " + newValue);
+    }
+
+    /**
+     * Stage 2 Critic, shown when a rating happens,
+     * e.g. "Critic c4 rates the food GOOD. Reputation is now GOOD."
+     * Tip: say what the reputation means for waiting customers
+     *      (lossChange: lose 2 less / 2 more per turn) so the player sees the effect.
+     *      Decide what to show for Rating.NONE, or check Game never calls this with NONE.
+     */
+    public void displayReview(Customer c, Rating rating, Reputation reputation) {
+        String effect = switch (reputation) {
+            case GOOD -> "waiting customers lose 2 less per turn";
+            case BAD -> "waiting customers lose 2 more per turn";
+            case NEUTRAL -> "waiting customers lose the normal amount";
+        };
+        System.out.println();
+        System.out.println("  REVIEW: " + label(c) + " rates the service " + rating + ".");
+        System.out.println("    Reputation is now " + reputation + ": " + effect + ".");
+    }
+
     /** Called by Game when a staff action throws IllegalMoveException. */
     public void displayError(String reason) {
         System.out.println();
@@ -152,8 +263,7 @@ public class RestaurantCLI {
         System.out.println();
         System.out.println("  Revenue " + money(g.getRevenueCents()) + "   |   Paid " + g.getPaidCount()
                 + "   |   Avg satisfaction " + average(g));
-        System.out.println("  Reputation " + g.getReputation());
- 
+        System.out.println("  Reputation " + g.getReputation() + "   |   Happy Hour " + happyHourStatus(g));
         System.out.println();
         System.out.println("  WAITING");
         List<Customer> waiting = g.getWaitingQueue();
@@ -198,6 +308,7 @@ public class RestaurantCLI {
  
         System.out.println();
         System.out.println("  WHAT YOUR STAFF CAN DO");
+        System.out.println("    Host     " + hostTasks(g));
         System.out.println("    Waiter   " + waiterTasks(g));
         System.out.println("    Chef     " + chefTasks(g));
         System.out.println(THIN);
@@ -369,6 +480,22 @@ public class RestaurantCLI {
     private static String chefTasks(Game g) {
         return g.getOrdersToCook().isEmpty() ? "nothing to cook" : "cook " + orderList(g.getOrdersToCook());
     }
+
+    private static String hostTasks(Game g) {
+        if (g.getWaitingQueue().isEmpty() || g.getFreeTables().isEmpty()) {
+            return "nothing to do (nobody waiting or no free table)";
+        }
+        return "seat " + customerIds(g.getWaitingQueue()) + " (free tables: " + tableIds(g.getFreeTables()) + ")";
+    }
+
+    private static String happyHourStatus(Game g) {
+        HappyHour hh = g.getHappyHour();
+        int left = hh.remainingTurns(g.getTurn());
+        if (left > 0) {
+            return "active, " + left + " turn(s) left";
+        }
+        return hh.isUsed() ? "used" : "available";
+    }
  
     private static String average(Game g) {
         OptionalDouble avg = g.averageSatisfaction();
@@ -417,4 +544,3 @@ public class RestaurantCLI {
         return String.format("$%d.%02d", cents / 100, cents % 100);
     }
 }
- 

@@ -1,0 +1,18 @@
+/**
+ * Stage 3: the manager's decision for the Host this turn.
+ * The Host can only seat (one queued customer at a free table), or wait.
+ * A null customer means the Host waits (Game checks choice.customer() != null).
+ *
+ * Same style as WaiterChoice / ChefChoice: built by RestaurantCLI, applied by Game.
+ */
+public record HostChoice(Customer customer, Table table) {
+ 
+    public static HostChoice seat(Customer c, Table t) {
+        return new HostChoice(c, t);
+    }
+ 
+    public static HostChoice waitTurn() {
+       return new HostChoice(null, null);
+    }
+}
+ 
