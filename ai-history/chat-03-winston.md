@@ -1,6 +1,6 @@
 # AI Chat History — Stage 3, Chat 01 (Winston)
 
-Second part of the Claude Code session in `ai-history/stage-2/chat-01-winston.md`, picking up where that log ends: tagging stage-2, writing and merging the Stage 3 victory and defeat scripts, and tagging stage-3.
+Second part of the Claude Code session in `ai-history/chat-02-winston.md`, picking up where that log ends: tagging stage-2, writing and merging the Stage 3 victory and defeat scripts, and tagging stage-3.
 Exported from the session transcript: user prompts, Claude's replies, and one line per action Claude took.
 Claude's internal reasoning, raw tool output and task-list updates are omitted.
 
