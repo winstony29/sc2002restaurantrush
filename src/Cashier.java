@@ -4,9 +4,16 @@
  * the occupied table after successful payment.
  */
 public class Cashier extends Staff {
-
-    public int collect(Customer c) {
+    // changed for stage 3
+    public int collect(Customer c, HappyHour happyHour){
         requireAvailable();
+        if (happyHour == null) {
+            throw new IllegalArgumentException(
+                "Happy Hour configuration is missing."
+            );
+    }
+        
+        
 
         // Validate customer
         if (c == null) {
@@ -37,9 +44,10 @@ public class Cashier extends Staff {
             );
         }
 
-        // Calculate bill (changed since stage 1)
-        int bill = c.applyDiscount(o.basePriceCents());
-
+        // Calculate bill account for stage 3
+        int bill = o.basePriceCents();
+        bill = c.applyDiscount(bill);
+        bill = happyHour.discountOn(o.getPlacedTurn(), bill);
         // Complete payment
         o.markPaid();
         c.markPaid();
