@@ -24,11 +24,14 @@ public class Game {
             13, RegularCustomer::new,
             16, RegularCustomer::new);
     private Reputation reputation = Reputation.NEUTRAL;
+    // "Can be activated once per game, at the start of a turn. It lasts for that turn and the next."
+    private final HappyHour happyHour = new HappyHour();
     private final List<Table> tables = new ArrayList<>();
     private final Queue<Customer> waitingQueue = new ArrayDeque<>();
     private final List<Customer> customers = new ArrayList<>();
     private final List<Order> orders = new ArrayList<>();
     private final Menu menu;
+    private final Host host;
     private final Waiter waiter;
     private final Chef chef;
     private final Cashier cashier;
@@ -39,20 +42,30 @@ public class Game {
     private static final int VICTORY_MIN_PAID = 4;
     private static final int VICTORY_MIN_REVENUE_CENTS = 4500;
     private static final int VICTORY_MIN_AVG_SATISFACTION = 60;
+    // "During each active turn, customers still waiting for a table or food recover 15
+    //  satisfaction at turn start (maximum 100)." The cap is applied by Customer.
+    private static final int HAPPY_HOUR_RECOVERY = 15;
 
-    // Base setting: 2 tables, Salad/Burger/Pasta menu, one Waiter, Chef and Cashier.
+    // Base setting: 2 tables, Salad/Burger/Pasta menu plus two combos, one Host, Waiter, Chef and Cashier.
     public Game(RestaurantCLI cli) {
         this.cli = cli;
-        menu = new Menu(List.of(
-                new MenuItem("Salad", 900, 1),
-                new MenuItem("Burger", 1500, 1),
-                new MenuItem("Pasta", 1800, 2)));
+        MenuItem salad = new MenuItem("Salad", 900, 1);
+        MenuItem burger = new MenuItem("Burger", 1500, 1);
+        MenuItem pasta = new MenuItem("Pasta", 1800, 2);
+        // "A customer chooses a combo according to a rule you document."
+        // No new rule: customers still pick menu item (id - 1) mod menu.size(), so with five
+        // items customer 4 picks Salad + Pasta and customer 5 picks Burger + Pasta.
+        // The base items keep their positions so earlier choices do not shift.
+        menu = new Menu(List.of(salad, burger, pasta,
+                new ComboMeal(salad, pasta),
+                new ComboMeal(burger, pasta)));
         tables.add(new Table(1));
         tables.add(new Table(2));
+        host = new Host();
         waiter = new Waiter();
         chef = new Chef();
         cashier = new Cashier();
-        staff.addAll(List.of(waiter, chef, cashier));
+        staff.addAll(List.of(host, waiter, chef, cashier));
     }
 
     // Loops runTurn() until isOver(), then shows the result.
@@ -63,7 +76,8 @@ public class Game {
         cli.displayResult(this);
     }
 
-    // One turn: reset staff, arrival, start screen, manager choices, eating/payment, waiting/abandonment.
+    // One turn: reset staff, arrival, start screen, Happy Hour offer and recovery,
+    // manager choices, eating/payment, waiting/abandonment.
     public void runTurn() {
         if (isOver()) {
             throw new IllegalStateException("The game is over");
@@ -74,6 +88,8 @@ public class Game {
         }
         processArrival();
         cli.displayTurnStart(this);
+        offerHappyHour();
+        applyHappyHourRecovery();
         applyManagerChoices();
         processEatingAndPayment();
         processWaitingAndAbandonment();
@@ -90,8 +106,32 @@ public class Game {
         }
     }
 
-    // Step 2-3: Waiter choice first, then Chef choice, each retried until legal.
+    // "Can be activated once per game, at the start of a turn." Only asked while unused.
+    private void offerHappyHour() {
+        if (!happyHour.isUsed() && cli.askActivateHappyHour(this)) {
+            happyHour.activate(turn);
+            cli.displayHappyHour(this);
+        }
+    }
+
+    // "During each active turn, customers still waiting for a table or food recover 15
+    //  satisfaction at turn start (maximum 100)." Customers who have left are not touched.
+    private void applyHappyHourRecovery() {
+        if (!happyHour.isActive(turn)) {
+            return;
+        }
+        for (Customer c : customers) {
+            if (isWaitingForService(c)) {
+                c.recoverSatisfaction(HAPPY_HOUR_RECOVERY);
+                cli.displayRecovery(c, c.getSatisfaction());
+            }
+        }
+    }
+
+    // Step 2-3: Host, then Waiter, then Chef, each retried until legal.
     private void applyManagerChoices() {
+        // "The Host seats at most one queued customer per turn, in addition to the Waiter's task."
+        retryUntilValid(() -> applyHostChoice(cli.readHostChoice(this)));
         // Waiter first, so a dish finished by the Chef this turn cannot be served until next turn.
         retryUntilValid(() -> applyWaiterChoice(cli.readWaiterChoice(this)));
         retryUntilValid(() -> applyChefChoice(cli.readChefChoice(this)));
@@ -109,13 +149,21 @@ public class Game {
         }
     }
 
+    private void applyHostChoice(HostChoice choice) {
+        if (choice.customer() != null) { // a null customer means the Host waits
+            host.seat(choice.customer(), choice.table());
+            waitingQueue.remove(choice.customer()); // only reached if seat() did not throw
+        }
+    }
+
     private void applyWaiterChoice(WaiterChoice choice) {
         switch (choice.kind()) {
             case SEAT -> {
                 waiter.seat(choice.customer(), choice.table());
                 waitingQueue.remove(choice.customer()); // only reached if seat() did not throw
             }
-            case TAKE_ORDER -> orders.add(waiter.takeOrder(choice.customer(), menu));
+            // The turn locks the Happy Hour price: "The price is locked when the order is taken."
+            case TAKE_ORDER -> orders.add(waiter.takeOrder(choice.customer(), menu, turn));
             case SERVE -> {
                 Order o = choice.customer() == null ? null : choice.customer().getOrder();
                 waiter.serve(o, turn);
@@ -125,6 +173,7 @@ public class Game {
                 Rating r = choice.customer().rateService(o, turn);
                 if (r != Rating.NONE) {
                     reputation = Reputation.valueOf(r.name());
+                    cli.displayReview(choice.customer(), r, reputation);
                 }
             }
             case WAIT -> { }
@@ -149,7 +198,8 @@ public class Game {
         }
         Customer payer = nextCustomerToPay();
         if (payer != null) {
-            revenueCents += cashier.collect(payer);
+            // "Apply the VIP discount first, then Happy Hour."
+            revenueCents += cashier.collect(payer, happyHour);
             paidSatisfactions.add(payer.getSatisfaction());
         }
     }
@@ -169,8 +219,7 @@ public class Game {
     // Step 5: unserved waiting/seated customers lose satisfaction; those at 0 abandon.
     private void processWaitingAndAbandonment() {
         for (Customer c : customers) {
-            CustomerStatus s = c.getStatus();
-            if (s == CustomerStatus.WAITING || s == CustomerStatus.SEATED || s == CustomerStatus.ORDERED) {
+            if (isWaitingForService(c)) {
                 // "Different behaviour must be dispatched through the customer objects, not through
                 //  a chain of type checks in the turn controller."
                 // Each customer computes its own loss; Game only passes the current reputation in.
@@ -180,6 +229,12 @@ public class Game {
                 }
             }
         }
+    }
+
+    // Still waiting for a table or food: WAITING, SEATED or ORDERED.
+    private static boolean isWaitingForService(Customer c) {
+        CustomerStatus s = c.getStatus();
+        return s == CustomerStatus.WAITING || s == CustomerStatus.SEATED || s == CustomerStatus.ORDERED;
     }
 
     // Cancels the customer's unfinished order, frees their table, removes them from the queue.
@@ -216,6 +271,14 @@ public class Game {
 
     public Reputation getReputation() {
         return reputation;
+    }
+
+    public Host getHost() {
+        return host;
+    }
+
+    public HappyHour getHappyHour() {
+        return happyHour;
     }
 
     public int getTurn() {
