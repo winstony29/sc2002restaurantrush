@@ -21,5 +21,5 @@ bin/
 # Local compile stubs for classes owned by teammates
 stubs/
 
-# Brief and UML, kept local for now
-docs/
+# Course brief, kept local (diagrams in docs/ are tracked)
+docs/*.docx
